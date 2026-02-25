@@ -1,0 +1,8 @@
+gradio
+openai
+PyPDF2
+python-docx
+docx2txt
+scikit-learn
+numpy
+python-dotenv
