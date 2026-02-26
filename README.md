@@ -44,7 +44,9 @@ WSL2 notes and best practices
 - To edit files from Windows editors (VS Code), open the project in WSL using `code .` from the WSL shell so extensions and terminal use the WSL Python interpreter.
 
 OpenAI API key
-- This project requires an OpenAI API key to call the models. Obtain one at https://platform.openai.com/ and set it as an environment variable:
+- This project requires an OpenAI API key to call the models. Obtain one at https://platform.openai.com/ and set it as an environment variable.
+
+Option 1: Environment variable (session-based):
 
 Windows PowerShell:
 
@@ -58,9 +60,32 @@ WSL2 / Linux:
 export OPENAI_API_KEY="sk-..."
 ```
 
+Option 2: Create a `.env` file (project-based, persistent):
+
+Windows PowerShell:
+
+```powershell
+# Use `echo` to create .env with your API key
+echo "OPENAI_API_KEY='your-api-key-here'" > .env
+# Edit .env with your actual API key
+notepad .env
+```
+
+WSL2 / Linux:
+
+```bash
+# Create .env file and append your API key
+touch .env
+echo "OPENAI_API_KEY='your-api-key-here'" >> .env
+# Edit .env with your actual API key
+nano .env
+```
+
 Security and notes
-- Do not commit your API key or `.env` file to the repository. Add `.env` or other secrets to `.gitignore`.
-- Consider using GitHub Secrets and Actions for CI usage.
+- **CRITICAL**: Do not commit your API key or `.env` file to the repository. Both are already in `.gitignore`.
+- Never push `.env` to GitHub—your API key will be compromised.
+- Consider using GitHub Secrets and Actions for CI/CD workflows.
+- If you accidentally commit your API key, regenerate it immediately at https://platform.openai.com/.
 
 Notes:
 - This repository is configured to use SSH remotes by default if you authenticated with SSH.
