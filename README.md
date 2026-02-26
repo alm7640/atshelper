@@ -81,6 +81,23 @@ echo "OPENAI_API_KEY='your-api-key-here'" >> .env
 nano .env
 ```
 
+API Cost Estimates (GPT-4o)
+
+Using GPT-4o for resume evaluations and improvements results in the following approximate costs:
+
+| Operation | Input Tokens | Output Tokens | Cost |
+|-----------|--------------|---------------|------|
+| Resume Evaluation | ~1,075 | ~1,500 | $0.028 |
+| Resume Improvement | ~1,075 | ~2,000 | $0.035 |
+| Complete Workflow | ~2,150 | ~3,500 | $0.063 |
+
+**Cost per volume:**
+- 100 evaluations: ~$2.80
+- 100 complete workflows: ~$6.30
+- 1,000 complete workflows: ~$63
+
+*Pricing based on GPT-4o rates: $0.005/1K input tokens, $0.015/1K output tokens. Actual costs may vary based on resume and job description length.*
+
 Security and notes
 - **CRITICAL**: Do not commit your API key or `.env` file to the repository. Both are already in `.gitignore`.
 - Never push `.env` to GitHub—your API key will be compromised.
