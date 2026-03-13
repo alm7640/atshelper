@@ -39,6 +39,11 @@ pip install -r requirements.txt
 python ats_ai_helper.py
 ```
 
+4. Access the app:
+   - The app will start a local web server. Open your browser and go to `http://localhost:7860` or the URL shown in the terminal.
+   - To find your IP address for access from other devices on the network, run: `ip addr show eth0` (Linux/WSL2) or `ipconfig` (Windows).
+   - To stop the program, press `Ctrl+C` in the terminal where it's running.
+
 WSL2 notes and best practices
 - Use WSL2 if you prefer a Linux-like environment on Windows; it avoids many Windows path and permission issues.
 - Keep your development virtual environment inside the project directory (for example `venv`).
