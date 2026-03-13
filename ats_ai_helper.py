@@ -143,16 +143,17 @@ class ATSResumeChecker:
         except Exception as e:
             return f"Error generating improved resume: {str(e)}"
     
-    def evaluate_resume(self, resume_file, job_description: str) -> Tuple[str, str, str]:
+    def evaluate_resume(self, resume_file, resume_text: str, job_description: str) -> Tuple[str, str, str]:
         """Main function to evaluate resume against job description."""
-        if not resume_file:
-            return "Please upload a resume file.", "", ""
+        if not resume_file and not resume_text:
+            return "Please upload a resume file or paste your resume text.", "", ""
         
         if not job_description.strip():
             return "Please provide a job description.", "", ""
         
-        # Extract resume text
-        resume_text = self.extract_resume_text(resume_file.name)
+        # Extract resume text from file if provided, otherwise use pasted text
+        if resume_file:
+            resume_text = self.extract_resume_text(resume_file.name)
         
         if resume_text.startswith("Error") or resume_text.startswith("Unsupported"):
             return resume_text, "", ""
@@ -182,7 +183,16 @@ class ATSResumeChecker:
 {gpt_evaluation}
         """
         
-        return evaluation_result, "Evaluation completed! You can now generate an improved resume.", ""
+        # Create downloadable evaluation report
+        temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', prefix='evaluation_report_')
+        temp_file.write(evaluation_result)
+        temp_file.close()
+
+        return (
+            evaluation_result,
+            "Evaluation completed! You can now generate an improved resume.",
+            temp_file.name,
+        )
     
     def improve_resume(self) -> Tuple[str, str]:
         """Generate improved resume based on last evaluation."""
@@ -258,6 +268,9 @@ with gr.Blocks(title="ATS Resume Checker") as app:
         <h1>🔍 ATS Resume Checker</h1>
         <p>Optimize your resume for Applicant Tracking Systems with AI-powered analysis and improvements</p>
     </div>
+    <div class="info-box">
+        <strong>API Key Required:</strong> This tool uses OpenAI. Make sure you set <code>OPENAI_API_KEY</code> in your environment or in a <code>.env</code> file before running.
+    </div>
     """)
     
     with gr.Tab("📋 Resume Evaluation"):
@@ -269,6 +282,13 @@ with gr.Blocks(title="ATS Resume Checker") as app:
                     label="Upload Resume (PDF or DOCX)",
                     file_types=[".pdf", ".docx"],
                     type="filepath"
+                )
+
+                resume_text = gr.Textbox(
+                    label="Or paste resume text",
+                    placeholder="Paste your resume text here (optional if you upload a file).",
+                    lines=12,
+                    max_lines=25
                 )
                 
                 job_description = gr.Textbox(
@@ -283,7 +303,20 @@ with gr.Blocks(title="ATS Resume Checker") as app:
             with gr.Column(scale=2):
                 evaluation_output = gr.Markdown(
                     label="Evaluation Results",
-                    value="Upload a resume and job description, then click 'Evaluate Resume' to see results."
+                    value="Upload a resume and job description, then click 'Evaluate Resume' to see results.",
+                    elem_id="evaluation_md"
+                )
+
+                copy_results_btn = gr.Button(
+                    "📋 Copy Results",
+                    variant="secondary",
+                    size="sm",
+                    elem_id="copy_eval_btn"
+                )
+
+                evaluation_download = gr.File(
+                    label="Download Evaluation Report",
+                    visible=False
                 )
     
     with gr.Tab("✨ Resume Improvement"):
@@ -345,9 +378,18 @@ with gr.Blocks(title="ATS Resume Checker") as app:
         """)
     
     # Event handlers
-    def handle_evaluation(resume_file, job_desc):
-        result, status, _ = ats_checker.evaluate_resume(resume_file, job_desc)
-        return result, status
+    def handle_evaluation(resume_file, resume_text, job_desc):
+        if not openai.api_key:
+            return (
+                "**OpenAI API key is not set.**\n\n" \
+                "Set the `OPENAI_API_KEY` environment variable or create a `.env` file and restart the app.",
+                "",
+                gr.File(visible=False),
+            )
+        result, status, report_path = ats_checker.evaluate_resume(resume_file, resume_text, job_desc)
+        if report_path:
+            return result, status, gr.File(value=report_path, visible=True)
+        return result, status, gr.File(visible=False)
     
     def handle_improvement():
         improved_text, file_path = ats_checker.improve_resume()
@@ -358,8 +400,8 @@ with gr.Blocks(title="ATS Resume Checker") as app:
     
     evaluate_btn.click(
         fn=handle_evaluation,
-        inputs=[resume_file, job_description],
-        outputs=[evaluation_output, improvement_status]
+        inputs=[resume_file, resume_text, job_description],
+        outputs=[evaluation_output, improvement_status, evaluation_download]
     )
     
     improve_btn.click(
@@ -376,6 +418,28 @@ with gr.Blocks(title="ATS Resume Checker") as app:
             ☕ Buy me a coffee
         </a>
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const copyBtn = document.getElementById("copy_eval_btn");
+        const output = document.getElementById("evaluation_md");
+
+        if (!copyBtn || !output) return;
+
+        copyBtn.addEventListener("click", () => {
+            const text = output.innerText || output.textContent || "";
+            if (!text) return;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const original = copyBtn.innerText;
+                copyBtn.innerText = "Copied!";
+                setTimeout(() => {
+                    copyBtn.innerText = original;
+                }, 1500);
+            });
+        });
+    });
+    </script>
     """)
 
 # Launch the application

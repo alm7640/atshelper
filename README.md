@@ -22,7 +22,7 @@ WSL2 (recommended for Linux-like environment on Windows):
 ```bash
 # open your WSL2 distro, then:
 python3 -m venv .venv
-source .venv/bin/activate
+source venv/bin/activate
 ```
 
 2. Install dependencies:
