@@ -1,5 +1,7 @@
 # ATS Helper
 
+That sinking feeling of refreshing your inbox and finding nothing is the ATS working against you — not your qualifications. ATS Helper takes five minutes to set up and makes sure you never have to wonder why again. Your resume stays yours — we never store, share, or profit from your data.
+
 Simple ATS Resume Checker and improver using OpenAI and Gradio.
 
 Prerequisites
@@ -13,15 +15,15 @@ Quick start
 Windows PowerShell (native):
 
 ```powershell
-python -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
+python -m venv venv
+.\\venv\\Scripts\\Activate.ps1
 ```
 
 WSL2 (recommended for Linux-like environment on Windows):
 
 ```bash
 # open your WSL2 distro, then:
-python3 -m venv .venv
+python3 -m venv venv
 source venv/bin/activate
 ```
 
@@ -39,7 +41,7 @@ python ats_ai_helper.py
 
 WSL2 notes and best practices
 - Use WSL2 if you prefer a Linux-like environment on Windows; it avoids many Windows path and permission issues.
-- Keep your development virtual environment inside the project directory (for example `.venv`).
+- Keep your development virtual environment inside the project directory (for example `venv`).
 - Use `python -m venv` (standard library) or tools like `pipx`/`pipenv`/`poetry` if you prefer more advanced workflows.
 - To edit files from Windows editors (VS Code), open the project in WSL using `code .` from the WSL shell so extensions and terminal use the WSL Python interpreter.
 
